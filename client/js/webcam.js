@@ -44,10 +44,20 @@ function disconnectClicked() {
 
 const webcam_listener = new ROSLIB.Topic({
     ros: ros,
-    name: '/auto_vehicle/webcam_frame/compressed',
+    name: '/auto_vehicle/webcam/compressed',
     messageType: 'sensor_msgs/CompressedImage'
 });
 
 webcam_listener.subscribe(function(message) {
     document.getElementById('webcam-viewer').src = 'data:image/jpeg;base64,' + message.data;
+});
+
+const vision_listener = new ROSLIB.Topic({
+    ros: ros,
+    name: '/auto_vehicle/vision/frame',
+    messageType: 'sensor_msgs/CompressedImage'
+});
+
+vision_listener.subscribe(function(message) {
+    document.getElementById('vision-viewer').src = 'data:image/jpeg;base64,' + message.data;
 });

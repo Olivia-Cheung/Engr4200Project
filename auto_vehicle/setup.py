@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'webcam_pub = auto_vehicle.webcam_pub:main',
+            'webcam = auto_vehicle.webcam:main',
             'vision = auto_vehicle.vision:main',
             'planner = auto_vehicle.planner:main',
             'hardware = auto_vehicle.hardware:main'
