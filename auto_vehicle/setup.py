@@ -15,11 +15,15 @@ setup(
     zip_safe=True,
     maintainer='Matthew Schaff',
     maintainer_email='mscha16@lsu.edu',
-    description='An autonomous vehicle that can handle stop signs, road following, and intersections.',
+    description='An autonomous vehicle controller that can handle stop signs, road following, and intersections.',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'webcam_pub = auto_vehicle.webcam_pub:main',
+            'vision = auto_vehicle.vision:main',
+            'planner = auto_vehicle.planner:main',
+            'hardware = auto_vehicle.hardware:main'
         ],
     },
 )

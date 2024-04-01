@@ -15,6 +15,8 @@
             }
         </script>
 
+        <script src="https://cdn.jsdelivr.net/npm/roslib@1/build/roslib.min.js"></script>
+
         <link rel="stylesheet" href="css/main.css">
     </head>
     <body>
@@ -27,8 +29,8 @@
                         <div class="card-body">
                             <h5 class="card-title">Connection</h5>
                             <input class="form-control" id="host-input" placeholder="Host">
-                            <button type="button" id="connect-button" class="btn btn-success mt-2">Connect</button>
-                            <button type="button" id="disconnect-button" class="btn btn-danger mt-2" disabled>Disconnect</button>
+                            <button type="button" id="connect-button" class="btn btn-success mt-2" onclick="connectClicked()">Connect</button>
+                            <button type="button" id="disconnect-button" class="btn btn-danger mt-2" onclick="disconnectClicked()" disabled>Disconnect</button>
                         </div>
                     </div>
 

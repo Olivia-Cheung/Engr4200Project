@@ -41,3 +41,13 @@ function disconnectClicked() {
 
     ros.close();
 }
+
+const webcam_listener = new ROSLIB.Topic({
+    ros: ros,
+    name: '/auto_vehicle/webcam_frame/compressed',
+    messageType: 'sensor_msgs/CompressedImage'
+});
+
+webcam_listener.subscribe(function(message) {
+    document.getElementById('webcam-viewer').src = 'data:image/jpeg;base64,' + message.data;
+});
