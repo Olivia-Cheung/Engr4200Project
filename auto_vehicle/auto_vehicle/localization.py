@@ -21,7 +21,6 @@ class Localization(Node):
         self.timer = self.create_timer(1.0 / 60.0, self.timer_callback)
 
     def stop_sign_callback(self, point):
-
         best_match = None
         delta_best_x = None
         delta_best_y = None
