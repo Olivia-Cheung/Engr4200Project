@@ -6,6 +6,7 @@ from geometry_msgs.msg import Point
 from cv_bridge import CvBridge
 import cv2
 import math
+import numpy as np
 
 class Vision(Node):
     
@@ -31,9 +32,7 @@ class Vision(Node):
         height = canny.shape[0]
         width = canny.shape[1]
         mask = np.zeros_like(canny)
-        triangle = np.array([
-            [(0, height), (246, 234), (560, height)],
-        ], np.int32)
+        triangle = np.array([[(0, height), (246, 234), (560, height)], ], np.int32)
         cv2.fillPoly(mask, triangle, 255)
         masked_image = cv2.bitwise_and(canny, mask)
         return masked_image
@@ -98,7 +97,14 @@ class Vision(Node):
                 self.stop_sign_publisher.publish(sign_msg)
                 
                 
-
+         # Lane Detection
+        canny_image = self.canny(frame)
+        cropped_image = self.region_of_interest(canny_image)
+        lines = cv2.HoughLinesP(cropped_image, 2, np.pi / 180, 100, np.array([]), minLineLength=40, maxLineGap=5)
+        averaged_lines = self.average_slope_intercept(frame, lines)
+        line_image = self.display_lines(frame, averaged_lines)
+        combo_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
+        
         self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(frame))
 
 def main():
