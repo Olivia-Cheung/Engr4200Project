@@ -46,6 +46,8 @@ class Vision(Node):
                 sign_msg.x = distanceX
                 sign_msg.y = distanceY
                 self.stop_sign_publisher.publish(sign_msg)
+                
+                
 
         self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(frame))
 
