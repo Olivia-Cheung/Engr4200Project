@@ -97,7 +97,7 @@ class Vision(Node):
                 self.stop_sign_publisher.publish(sign_msg)
                 
                 
-         # Lane Detection
+         # Lane Detection and publishing combined image to the publisher
         canny_image = self.canny(frame)
         cropped_image = self.region_of_interest(canny_image)
         lines = cv2.HoughLinesP(cropped_image, 2, np.pi / 180, 100, np.array([]), minLineLength=40, maxLineGap=5)
@@ -105,7 +105,7 @@ class Vision(Node):
         line_image = self.display_lines(frame, averaged_lines)
         combo_image = cv2.addWeighted(frame, 0.8, line_image, 1, 1)
         
-        self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(frame))
+        self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(combo_image))
 
 def main():
     rclpy.init()
