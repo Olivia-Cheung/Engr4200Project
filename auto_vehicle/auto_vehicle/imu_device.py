@@ -1,13 +1,12 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Imu
-from geometry_msgs.msg import Vector3
 from auto_vehicle.lib import IMU
 import datetime
 import math
-import tf
+import tf_transformations
 
-class IMU(Node):
+class IMUDevice(Node):
 
     RAD_TO_DEG = 57.29578
     M_PI = 3.14159265358979323846
@@ -36,7 +35,7 @@ class IMU(Node):
     a = datetime.datetime.now()
     
     def __init__(self):
-        super().__init__('imu')
+        super().__init__('imu_device')
 
         self.imu_publisher = self.create_publisher(Imu, 'auto_vehicle/imu', 10)
 
@@ -49,7 +48,7 @@ class IMU(Node):
 
         IMU.initIMU()
 
-    def time_callback(self):
+    def timer_callback(self):
         #Read the accelerometer,gyroscope and magnetometer values
         ACCx = IMU.readACCx()
         ACCy = IMU.readACCy()
@@ -131,52 +130,34 @@ class IMU(Node):
             magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)+MAGz*math.sin(roll)*math.cos(pitch)
 
         #Calculate tilt compensated heading
-            tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/self.M_PI
+        tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/self.M_PI
 
         if tiltCompensatedHeading < 0:
             tiltCompensatedHeading += 360
         ##################### END Tilt Compensation ########################
 
-        if 1:                       #Change to '0' to stop showing the angles from the accelerometer
-            outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
-
-        if 1:                       #Change to '0' to stop  showing the angles from the gyro
-            outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (self.gyroXangle,self.gyroYangle,self.gyroZangle)
-
-        if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
-            outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (self.CFangleX,self.CFangleY)
-
-        if 1:                       #Change to '0' to stop  showing the heading
-            outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
-
-        self.get_logger().info(outputString)
-
         imu_msg = Imu()
 
-        quat = tf.transformations.quaternion_from_euler(self.gyroXangle, self.gyroYangle, self.gyroZangle)
-        imu_msg.orientation_covariance.x = quat[0]
-        imu_msg.orientation_covariance.y = quat[1]
-        imu_msg.orientation_covariance.z = quat[2]
-        imu_msg.orientation_covariance.w = quat[3]
+        quat = tf_transformations.quaternion_from_euler(0, 0, math.radians(self.gyroZangle))
+        imu_msg.orientation.x = quat[0]
+        imu_msg.orientation.y = quat[1]
+        imu_msg.orientation.z = quat[2]
+        imu_msg.orientation.w = quat[3]
 
-        imu_msg.angular_velocity.x = GYRx
-        imu_msg.angular_velocity.y = GYRy
-        imu_msg.angular_velocity.z = GYRz
-
-        imu_msg.linear_acceleration.x = ACCx
-        imu_msg.linear_acceleration.y = ACCy
-        imu_msg.linear_acceleration.z = ACCz
+        imu_msg.linear_acceleration.x = ((ACCx * 0.244) / 1000) * 9.81
+        imu_msg.linear_acceleration.y = ((ACCy * 0.244) / 1000) * 9.81
+        imu_msg.linear_acceleration.z = ((ACCz * 0.244) / 1000) * 9.81
 
         self.imu_publisher.publish(imu_msg)
 
 def main():
     rclpy.init()
 
-    imu = IMU()
+    imuDevice = IMUDevice()
 
-    rclpy.spin(imu)
+    rclpy.spin(imuDevice)
 
-    imu.destroy_node()
+    imuDevice.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

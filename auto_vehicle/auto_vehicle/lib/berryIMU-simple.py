@@ -189,6 +189,9 @@ while True:
     if 1:                       #Change to '0' to stop  showing the heading
         outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
 
+    if 1:                       #Change to '0' to stop  showing the heading
+        outputString +="\t# ACCEL_X %5.2f  ACCEL_Y %5.2f  ACCEL_Z %5.2f #" % (((ACCx * 0.244) / 1000) * 9.81, ((ACCy * 0.244) / 1000) * 9.81, ((ACCz * 0.244) / 1000) * 9.81)
+
 
     print(outputString)
 

@@ -26,7 +26,7 @@ setup(
             'hardware = auto_vehicle.hardware:main',
             'localization = auto_vehicle.localization:main',
             'odometry = auto_vehicle.odometry:main',
-            'imu = auto_vehicle.imu:main'
+            'imu_device = auto_vehicle.imu_device:main'
         ],
     },
 )

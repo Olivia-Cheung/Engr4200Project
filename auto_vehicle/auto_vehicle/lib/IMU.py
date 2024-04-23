@@ -1,9 +1,9 @@
 import smbus
 bus = smbus.SMBus(1)
-from LSM9DS0 import *
-from LSM9DS1 import *
-from LSM6DSL import *
-from LIS3MDL import *
+from auto_vehicle.lib.LSM9DS0 import *
+from auto_vehicle.lib.LSM9DS1 import *
+from auto_vehicle.lib.LSM6DSL import *
+from auto_vehicle.lib.LIS3MDL import *
 import time
 
 
