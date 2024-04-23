@@ -24,7 +24,9 @@ setup(
             'vision = auto_vehicle.vision:main',
             'planner = auto_vehicle.planner:main',
             'hardware = auto_vehicle.hardware:main',
-            'localization = auto_vehicle.localization:main'
+            'localization = auto_vehicle.localization:main',
+            'odometry = auto_vehicle.odometry:main',
+            'imu = auto_vehicle.imu:main'
         ],
     },
 )
