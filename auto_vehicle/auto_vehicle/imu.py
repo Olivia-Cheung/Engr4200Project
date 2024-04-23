@@ -5,6 +5,7 @@ from geometry_msgs.msg import Vector3
 from auto_vehicle.lib import IMU
 import datetime
 import math
+import tf
 
 class IMU(Node):
 
@@ -77,9 +78,9 @@ class IMU(Node):
         rate_gyr_z =  GYRz * self.G_GAIN
 
         #Calculate the angles from the gyro.
-        gyroXangle+=rate_gyr_x*LP
-        gyroYangle+=rate_gyr_y*LP
-        gyroZangle+=rate_gyr_z*LP
+        self.gyroXangle+=rate_gyr_x*LP
+        self.gyroYangle+=rate_gyr_y*LP
+        self.gyroZangle+=rate_gyr_z*LP
 
         #Convert Accelerometer values to degrees
         AccXangle =  (math.atan2(ACCy,ACCz)*self.RAD_TO_DEG)
@@ -92,8 +93,8 @@ class IMU(Node):
             AccYangle += 90.0
 
         #Complementary filter used to combine the accelerometer and gyro values.
-        CFangleX=self.AA*(CFangleX+rate_gyr_x*LP) +(1 - self.AA) * AccXangle
-        CFangleY=self.AA*(CFangleY+rate_gyr_y*LP) +(1 - self.AA) * AccYangle
+        self.CFangleX=self.AA*(self.CFangleX+rate_gyr_x*LP) +(1 - self.AA) * AccXangle
+        self.CFangleY=self.AA*(self.CFangleY+rate_gyr_y*LP) +(1 - self.AA) * AccYangle
 
         #Calculate heading
         heading = 180 * math.atan2(MAGy,MAGx)/self.M_PI
@@ -140,15 +141,33 @@ class IMU(Node):
             outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
 
         if 1:                       #Change to '0' to stop  showing the angles from the gyro
-            outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)
+            outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (self.gyroXangle,self.gyroYangle,self.gyroZangle)
 
         if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
-            outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (CFangleX,CFangleY)
+            outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (self.CFangleX,self.CFangleY)
 
         if 1:                       #Change to '0' to stop  showing the heading
             outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
 
         self.get_logger().info(outputString)
+
+        imu_msg = Imu()
+
+        quat = tf.transformations.quaternion_from_euler(self.gyroXangle, self.gyroYangle, self.gyroZangle)
+        imu_msg.orientation_covariance.x = quat[0]
+        imu_msg.orientation_covariance.y = quat[1]
+        imu_msg.orientation_covariance.z = quat[2]
+        imu_msg.orientation_covariance.w = quat[3]
+
+        imu_msg.angular_velocity.x = GYRx
+        imu_msg.angular_velocity.y = GYRy
+        imu_msg.angular_velocity.z = GYRz
+
+        imu_msg.linear_acceleration.x = ACCx
+        imu_msg.linear_acceleration.y = ACCy
+        imu_msg.linear_acceleration.z = ACCz
+
+        self.imu_publisher.publish(imu_msg)
 
 def main():
     rclpy.init()
