@@ -10,6 +10,7 @@ class Localization(Node):
     # Stop sign constants
     stop_sign_max_move_x = 10.0
     stop_sign_max_move_y = 5.0
+    stop_sign_update_time = 1.0
     stop_sign_purge_time = 5.0
 
     def __init__(self):
@@ -18,6 +19,8 @@ class Localization(Node):
         self.active_stop_signs = []
 
         self.stop_sign_subscription = self.create_subscription(Point, 'auto_vehicle/vision/stop_signs', self.stop_sign_callback, 10)
+
+        self.stop_sign_publisher = self.create_publisher(Point, 'auto_vehicle/localization/stop_signs', 10)
 
         self.timer = self.create_timer(1.0 / 60.0, self.timer_callback)
 
@@ -45,8 +48,6 @@ class Localization(Node):
             best_match['x'] = point.x
             best_match['y'] = point.y
             best_match['last_updated'] = time.time_ns()
-
-            self.get_logger().info(str(len(self.active_stop_signs)) + ': ' + str(best_match))
         else:
             temp_sign = {
                 'id': uuid.uuid4(),
@@ -60,6 +61,16 @@ class Localization(Node):
     def timer_callback(self):
         # Purge expired stop signs
         for sign in self.active_stop_signs:
+            self.get_logger().info(str(len(self.active_stop_signs)) + ': ' + str(sign))
+
+            if time.time_ns() - sign['last_updated'] >= self.stop_sign_update_time * 1000000000:
+                sign['y'] -= 9.0 / 60.0
+            
+            sign_msg = Point()
+            sign_msg.x = sign['x']
+            sign_msg.y = sign['y']
+            self.stop_sign_publisher.publish(sign_msg)
+
             if time.time_ns() - sign['last_updated'] >= self.stop_sign_purge_time * 1000000000:
                 self.active_stop_signs.remove(sign)
 

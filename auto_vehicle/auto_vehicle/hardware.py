@@ -5,6 +5,9 @@ from geometry_msgs.msg import Point
 
 class Hardware(Node):
     
+    safety_count = 0
+    last_safety_count = 0
+
     def __init__(self):
         super().__init__('hardware')
 
@@ -24,12 +27,32 @@ class Hardware(Node):
 
         self.speeds_subscription = self.create_subscription(Point, 'auto_vehicle/hardware/speeds', self.speeds_callback, 10)
 
+        self.timer = self.create_timer(1.0, self.timer_callback)
+
     def speeds_callback(self, point):
-        self.get_logger().info('Setting wheel speeds: ' + str(point.x) + ' ' + str(point.y))
+        left_speed = (7.0 + point.y) + point.x
+        right_speed = (7.0 - point.y) + point.x
 
-        self.left_wheel_pwm.ChangeDutyCycle(point.x)
-        self.right_wheel_pwm.ChangeDutyCycle(point.y)
+        self.get_logger().info('Setting wheel speeds: ' + str(left_speed) + ' ' + str(right_speed))
 
+        if left_speed == 7.0 and right_speed == 7.0:
+            self.left_wheel_pwm.ChangeDutyCycle(0)
+            self.right_wheel_pwm.ChangeDutyCycle(0)
+        else:
+            self.left_wheel_pwm.ChangeDutyCycle(left_speed)
+            self.right_wheel_pwm.ChangeDutyCycle(right_speed)
+
+        self.safety_count += 1;
+
+    def timer_callback(self):
+        if self.last_safety_count >= self.safety_count:
+            self.get_logger().info('Safety called')
+
+            self.left_wheel_pwm.ChangeDutyCycle(0)
+            self.right_wheel_pwm.ChangeDutyCycle(0)
+
+        self.last_safety_count = self.safety_count
+    
 def main():
     rclpy.init()
 
