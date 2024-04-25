@@ -50,8 +50,9 @@ class Vision(Node):
                 self.stop_sign_publisher.publish(sign_msg)
 
         # Road Line Detection
-        edges = cv2.Canny(gray, 50, 150, apertureSize=3)
-        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 30, minLineLength=10, maxLineGap=10)
+        blurred = cv2.GaussianBlur(frame, (5, 5), 0)
+        edges = cv2.Canny(blurred, 85, 85)
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 10, minLineLength=10, maxLineGap=10)
 
         average = 0.0
         average_count = 0
