@@ -31,7 +31,7 @@ class Planner(Node):
 
     def timer_callback(self):
         v = 0.9
-        w = -self.road * 0.01
+        w = self.road * 0.001
 
         if self.stop_start_time != -1:
             if (time.time_ns() - self.stop_start_time) <= 3.0 * 1000000000:
