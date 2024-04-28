@@ -50,36 +50,44 @@ class Vision(Node):
                 self.stop_sign_publisher.publish(sign_msg)
 
         # Road Line Detection
-        blurred = cv2.GaussianBlur(frame, (5, 5), 0)
-        edges = cv2.Canny(blurred, 85, 85)
-        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 10, minLineLength=10, maxLineGap=10)
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        average = 0.0
-        average_count = 0
-        if lines is not None:
-            for line in lines:
-                x1, y1, x2, y2 = line[0]
+        masked = cv2.inRange(blurred, 50, 140)
+
+        cropped = masked[100:240, :]
+
+        contours, heirarchy = cv2.findContours(cropped, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        count = 0
+        sumX = 0
+        sumY = 0
+
+        for c in contours:
+            if cv2.contourArea(c) > 10000:
+                count += 1
+            
+                M = cv2.moments(c)
+
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
                 
-                slope = (y2 - y1) / (x2 - x1)
+                sumX += cX
+                sumY += cY
 
-                if abs(slope) < 0.5:
-                    continue
+        if count > 0:
+            grandCX = int(float(sumX) / float(count))
 
-                average += 160 - x1
-                average_count += 1
+            cv2.circle(frame, (grandCX, 150), 30, (0, 0, 255), -1)
 
-                cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            height, width = frame.shape[:2]
 
-            if average_count > 0:
-                average /= average_count
-        
-        road = Point()
-        road.x = average
-        self.road_publisher.publish(road)
+            error = (grandCX - (width / 2.0)) + 0.0
 
-        self.get_logger().info('Road average: ' + str(average))
+            self.get_logger().info('Road error: ' + str(error))
 
-        cv2.circle(frame, (int(160 + average), 100), 0, (0, 0, 255), 20)
+            road = Point()
+            road.x = error
+            self.road_publisher.publish(road)
 
         self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(frame))
 
