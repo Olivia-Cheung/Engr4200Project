@@ -22,8 +22,7 @@ class Planner(Node):
         self.get_logger().info('Received stop sign point: ' + str(point.y))
 
         if point.y < 15.0 and point.y > 0.0 and self.stop_start_time == -1:
-            #self.stop_start_time = time.time_ns()
-            pass
+            self.stop_start_time = time.time_ns()
 
     def road_callback(self, point):
         self.get_logger().info('Received road point: ' + str(point.x))

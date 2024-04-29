@@ -37,7 +37,7 @@ class Vision(Node):
             for (x, y, w, h) in stop_signs:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
-                distanceY = (4.5 * 512.0) / w
+                distanceY = (2.2 * 512.0) / w
 
                 targetAngle = ((x + (w / 2.0)) / 320) * 55.0
                 scaledTargetAngle = -(55.0 / 2.0) + targetAngle
@@ -52,7 +52,7 @@ class Vision(Node):
         # Road Line Detection
         blurred = cv2.GaussianBlur(gray, (5, 5), 0)
 
-        masked = cv2.inRange(blurred, 50, 140)
+        masked = cv2.inRange(blurred, 60, 140)
 
         cropped = masked[100:240, :]
 
@@ -81,7 +81,7 @@ class Vision(Node):
 
             height, width = frame.shape[:2]
 
-            error = (grandCX - (width / 2.0)) + 0.0
+            error = (grandCX - (width / 2.0)) - 10.0
 
             self.get_logger().info('Road error: ' + str(error))
 

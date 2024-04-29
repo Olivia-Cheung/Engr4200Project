@@ -64,7 +64,7 @@ class Localization(Node):
             self.get_logger().info(str(len(self.active_stop_signs)) + ': ' + str(sign))
 
             if time.time_ns() - sign['last_updated'] >= self.stop_sign_update_time * 1000000000:
-                sign['y'] -= 9.0 / 60.0
+                sign['y'] -= 4.0 / 60.0
             
             sign_msg = Point()
             sign_msg.x = sign['x']
