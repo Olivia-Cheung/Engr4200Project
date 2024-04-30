@@ -37,7 +37,7 @@ class Vision(Node):
             for (x, y, w, h) in stop_signs:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 5)
 
-                distanceY = (2.2 * 512.0) / w
+                distanceY = (1.8 * 512.0) / h
 
                 targetAngle = ((x + (w / 2.0)) / 320) * 55.0
                 scaledTargetAngle = -(55.0 / 2.0) + targetAngle
@@ -81,7 +81,7 @@ class Vision(Node):
 
             height, width = frame.shape[:2]
 
-            error = (grandCX - (width / 2.0)) - 10.0
+            error = (grandCX - (width / 2.0)) - 30.0
 
             self.get_logger().info('Road error: ' + str(error))
 
