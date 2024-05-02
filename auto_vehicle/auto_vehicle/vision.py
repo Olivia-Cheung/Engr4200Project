@@ -89,7 +89,7 @@ class Vision(Node):
             road.x = error
             self.road_publisher.publish(road)
 
-        self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(frame))
+        self.frame_publisher.publish(self.br.cv2_to_compressed_imgmsg(masked))
 
 
 def main():
